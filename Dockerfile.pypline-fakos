@@ -1,0 +1,7 @@
+FROM registry.gitlab.com/christiantragesser/pypline-ci:3
+
+RUN pip3 install kubernetes==6.0.0 \
+requests \
+responses \
+prometheus-client \
+python-json-logger --no-cache-dir

@@ -1,0 +1,3 @@
+FROM registry.gitlab.com/christiantragesser/pypline-ci:3
+
+RUN pip install flask
