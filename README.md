@@ -78,7 +78,7 @@ pl.cveScan('nginx:latest')
 #### API reference
 * **Pipeline**(_network='ci_net', dockerRegistry='library/'_)
 
-  ```class pyplineCI.pyplineCI.Pipeline```
+  ```class pypline-ci.pyplineCI.Pipeline```
   - **createNetwork(** _network_ **)** | Create docker pipeline network.  
   parameters:
     + network(_str_) - Name of pipeline network, default `ci_net`
