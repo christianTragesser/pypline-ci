@@ -1,4 +1,4 @@
-image: registry.gitlab.com/christiantragesser/dind-py:latest
+image: registry.gitlab.com/christiantragesser/pypline-ci:dev
 
 variables:
     DOCKER_DRIVER: overlay2
@@ -28,7 +28,7 @@ test_2.7:
 test_3:
   stage: test
   script:
-    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/dind-py:3 sh -c 'pytest /tmp/tests'
+    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:3 sh -c 'pytest /tmp/tests'
     - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/Dockerfile-3 .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:3 | grep -e "The push refers to" -e latest
@@ -59,11 +59,13 @@ release_pypi:
     - PATCH=$(pip search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
     - NEW=$((PATCH + 1))
     - sed -i -e "s/PATCH/$NEW/" setup.py
-    - mkdir ./pypeline-ci
-    - echo "from pyplineCI import *" > ./pypline-ci/__init__.py
+    - mkdir $CI_PROJECT_DIR/pyplineCI
+    - echo "from .pyplineCI import *" > $CI_PROJECT_DIR/pyplineCI/__init__.py
     - cp README.md README.txt
-    - cp ./pyplineCI.py ./pypline-ci/pyplineCI.py && chmod 755 ./pypline-ci/pyplineCI.py
+    - cp $CI_PROJECT_DIR/pyplineCI.py $CI_PROJECT_DIR/pyplineCI/pyplineCI.py
     - python setup.py sdist
+    - pip install $CI_PROJECT_DIR/dist/pypline-ci-0.1.${NEW}.tar.gz
+    - python -c 'from pyplineCI import Pipeline'
     - twine upload dist/*
    only:
      - master

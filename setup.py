@@ -9,7 +9,7 @@ setup(
      long_description=open('README.txt').read(),
      license='MIT',
      url="https://github.com/christianTragesser/pypline-ci",
-     packages=['pypline-ci',],
+     packages=['pyplineCI',],
      install_requires=[
         "docker >= 3.5.0",
     ],
