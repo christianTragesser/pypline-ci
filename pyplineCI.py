@@ -71,8 +71,8 @@ class Pipeline(object):
                 print(e)
 
 
-    def runContainerDetached(self, image, stderr=None, ports=None, volumes=None,
-                     name=None, environment=None, network=None,
+    def runD(self, image, stderr=None, ports=None, volumes=None,
+                     name=None, env_vars=None, network=None,
                      command=None, detach=None, remove=None):
         if network == None:
             network = self.network
@@ -91,7 +91,7 @@ class Pipeline(object):
                                                        ports=ports,
                                                        volumes=volumes,
                                                        name=name,
-                                                       environment=environment,
+                                                       environment=env_vars,
                                                        command=command,
                                                        network=network,
                                                        detach=detach,
@@ -105,9 +105,9 @@ class Pipeline(object):
             return self.instance.id
 
 
-    def runContainerInteractive(self, image, command, name=None,
+    def runI(self, image, command, name=None,
                                 volumes=None, working_dir=None,
-                                tty=True, environment=None, stdin_open=True,
+                                tty=True, env_vars=None, stdin_open=True,
                                 network=None, auto_remove=False):
         self.name = str(name)
         self.command = command
@@ -121,7 +121,7 @@ class Pipeline(object):
 
         self.pullImage(image)
 
-        container = self.client.containers.create(image=image, command='sleep 600', environment=environment,
+        container = self.client.containers.create(image=image, command='sleep 600', environment=env_vars,
                                                   volumes=volumes, tty=tty, stdin_open=stdin_open,
                                                   network=network, auto_remove=auto_remove)
         container.start()
@@ -163,13 +163,13 @@ class Pipeline(object):
 
         print(bcolors.HEADER+'  * Scanning image {0:s} for known CVEs, please wait'.format(self.scanImg)+bcolors.ENDC)
      
-        self.cleanMe.append(self.runContainerDetached(image='arminc/clair-db:latest', name='postgres'))
-        self.runContainerDetached(image='christiantragesser/clair-scanner',
+        self.cleanMe.append(self.runD(image='arminc/clair-db:latest', name='postgres'))
+        self.runD(image='christiantragesser/clair-scanner',
                           name='db-wait',
                           command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
                           detach=False)
-        self.cleanMe.append(self.runContainerDetached(image='arminc/clair-local-scan:v2.0.6', name='clair'))
-        self.runContainerInteractive(image='christiantragesser/clair-scanner', command=self.command,
+        self.cleanMe.append(self.runD(image='arminc/clair-local-scan:v2.0.6', name='clair'))
+        self.runI(image='christiantragesser/clair-scanner', command=self.command,
                                      name='clair-scanner', volumes=self.scanVolumes)
         print('  - CVE scan cleanup')
         self.purgeContainers(self.cleanMe)

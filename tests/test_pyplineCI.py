@@ -49,7 +49,7 @@ def test_run_container_detached(mock_pull_image, mock_create_container,
     #runs docker SDK pull method
     #creates container
     #returns container ID 
-    response = pipeline.runContainerDetached('test/pyplineCI:latest')
+    response = pipeline.runD('test/pyplineCI:latest')
     
     assert mock_pull_image.called
     assert response == mockValues.createdContainer['Id']
@@ -64,7 +64,7 @@ def test_run_local_image(mock_pull_image, mock_create_container,
     #runs docker SDK pull method
     #creates container
     #returns container ID 
-    response = pipeline.runContainerDetached('local/test:latest')
+    response = pipeline.runD('local/test:latest')
     
     assert not mock_pull_image.called
     assert response == mockValues.createdContainer['Id']
@@ -86,7 +86,7 @@ def test_run_container_interactive(mock_pull_image, mock_create_container,
     #creates starts container
     #executes command on container
     #returns output of interactive session
-    response = pipeline.runContainerInteractive('test/pyplineCI:latest', 'echo hello')
+    response = pipeline.runI('test/pyplineCI:latest', 'echo hello')
     
     assert mock_pull_image.called
     assert response == 0
@@ -109,7 +109,7 @@ def test_error_container_interactive(mock_pull_image, mock_create_container,
     #executes command on container
     #returns error
     with pytest.raises(Exception) as excinfo:
-        pipeline.runContainerInteractive('test/pyplineCI:latest', 'echo hello')
+        pipeline.runI('test/pyplineCI:latest', 'echo hello')
     assert 'Pipeline error' in str(excinfo.value)
 
 @mock.patch('docker.APIClient.prune_containers')
