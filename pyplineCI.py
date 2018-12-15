@@ -127,6 +127,10 @@ class Pipeline(object):
         container.start()
         print('    '+container.id)
         exec_log = container.exec_run(self.command, workdir=self.working_dir, stdout=True, stderr=True, stream=False)
+        # python 2.7 unicode hack
+        if sys.version_info[0] < 3:
+            reload(sys)
+            sys.setdefaultencoding('utf8')
         print(bcolors.UNDERLINE+
                   '\n  {0:s} attached output  \n'.format(self.name)+
                   bcolors.ENDC+ 

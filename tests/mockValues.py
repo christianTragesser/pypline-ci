@@ -1,3 +1,5 @@
+import sys
+
 networksList = [   
     {   
         u'Attachable': False,
@@ -298,7 +300,11 @@ errorInspect = {
 }
 
 #encoded string which is decoded by library
-execResult = 'hello\n'.encode()
+if sys.version_info[0] < 3:
+    checkmark = u'\u2713' #unicode checkmark
+else:
+    checkmark = bytes(u'\u2713', 'utf-8') #unicode checkmark
+execResult = checkmark+' hello\n'.encode()
 
 pruneResult = {
     u'ContainersDeleted': 
