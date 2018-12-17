@@ -19,10 +19,10 @@ localTag = 'local/foo:latest'
 
 pipeline = Pipeline()
 pipeline.buildImage(buildPath, localTag)
-pipeline.runContainerDetached(localTag)
+pipeline.runD(localTag)
 ```
 
-* Run testing framework from a dedicated testing image
+* Implement testing framework from dedicated testing image
 ```python
 import os
 from pyplineCI import Pipeline
@@ -32,10 +32,9 @@ volumes = { dirPath: { 'bind': '/tmp', 'mode': 'rw' } }
 testDir = '/tmp/tests'
 
 pipeline = Pipeline(dockerRegistry='registry.gitlab.com/christiantragesser/')
-pipeline.runContainerInteractive(
-    image=pipeline.dockerRegistry+'pyplineCI:latest',
-    name='foo-test', working_dir=testDir,
-    volumes=volumes, command='pytest')
+pipeline.runI(image=pipeline.dockerRegistry+'pyplineCI:latest',
+              name='foo-test', working_dir=testDir,
+              volumes=volumes, command='pytest')
 ```
 
 * Orchestrate application stack for UAT testing then remove all containers if tests are successful
@@ -61,11 +60,11 @@ app_env_vars = {
 }
 
 pl = Pipeline()
-cleanUp.append(pl.runContainerDetached(image='mysql:5.7', name='mysql-test', environment=db_env_vars))
-cleanUp.append(pl.runContainerDetached(image='local/foo_app', name='foo-app-test', environment=app_env_vars))
-pl.runContaineInteractive(image='tutum/curl:latest', name='foo-uat',
-                      working_dir=testDir, volumes=uat_volume,
-                      command='./uat.sh foo-app-test:5000')
+cleanUp.append(pl.runD(image='mysql:5.7', name='mysql-test', environment=db_env_vars))
+cleanUp.append(pl.runD(image='local/foo_app', name='foo-app-test', environment=app_env_vars))
+pl.runI(image='tutum/curl:latest', name='foo-uat',
+        working_dir=testDir, volumes=uat_volume,
+        command='./uat.sh foo-app-test:5000')
 pl.purgeContainers(cleanUp)
 ``` 
 * Perform CVE scan on a docker image
@@ -89,7 +88,7 @@ pl.cveScan('nginx:latest')
   - **pullImage(** _image_ **)** | Pull an image of the given name, similar to the `docker pull` command. If no tag is specified, all tags from that repository will be pulled.  
   parameters:
     + image(_str_) - Image name to pull.
-  - **runContainerDetached(** _image, stderr=None, ports=None, volumes=None, name=None, environment=None, network=_<obj network\>_, command=None, detach=True, remove=False_ **)** |
+  - **runD(** _image, stderr=None, ports=None, volumes=None, name=None, environment=None, network=_<obj network\>_, command=None, detach=True, remove=False_ **)** |
   Performs pull action on provided image, runs a daemonized container, then returns the container ID.  
   parameters:
     + environment(_dict or list_) - Environment variables to set inside the container.
@@ -97,7 +96,7 @@ pl.cveScan('nginx:latest')
     + name(_str_) - The name for this container.
     + ports(_dict_) - Port bindings to the container. The keys of the dictionary are the ports to bind inside the container, either as an integer or a string in the form port/protocol, where the protocol is either tcp or udp. The values of the dictionary are the corresponding ports to open on the host.
     + volumes(_dict_) - Configure volumes mounted inside the container.
-  - **runContainerInteractive(** _image, command, name=None, volumes=None, working_dir='/root', tty=True, environment=None, stdin_open=True, network=_<obj network\>_, auto_remove=False_ **)** | Performs pull action on provided image, runs an interactive container implementing provided command, then returns container stdout logs and command exit status(zero or non-zero).  
+  - **runI(** _image, command, name=None, volumes=None, working_dir='/root', tty=True, environment=None, stdin_open=True, network=_<obj network\>_, auto_remove=False_ **)** | Performs pull action on provided image, runs an interactive container implementing provided command, then returns container stdout logs and command exit status(zero or non-zero).  
   parameters:
     + command(_str_) - The command to run in the container.
     + environment(_dict or list_) - Environment variables to set inside the container.
