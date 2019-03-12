@@ -17,7 +17,7 @@ test_2.7:
   stage: test
   script:
     - pytest $CI_PROJECT_DIR/tests
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:latest .
+    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:latest -f $CI_PROJECT_DIR/docker/Dockerfile .
     - docker tag $CI_REGISTRY/christiantragesser/pypline-ci:latest $CI_REGISTRY/christiantragesser/pypline-ci:2.7
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:latest | grep -e "The push refers to" -e latest
@@ -29,7 +29,7 @@ test_3:
   stage: test
   script:
     - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev3 sh -c 'pytest /tmp/tests'
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/Dockerfile-3 .
+    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/docker/Dockerfile-3 .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:3 | grep -e "The push refers to" -e latest
   only:
@@ -38,7 +38,7 @@ test_3:
 release_fakos:
    stage: release
    script:
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:fakos -f $CI_PROJECT_DIR/Dockerfile.pypline-fakos .
+    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:fakos -f $CI_PROJECT_DIR/docker/Dockerfile.pypline-fakos .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:fakos | grep -e "The push refers to" -e latest
    only:
@@ -47,7 +47,7 @@ release_fakos:
 release_poc:
    stage: release
    script:
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:poc -f $CI_PROJECT_DIR/Dockerfile.pypline-poc .
+    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:poc -f $CI_PROJECT_DIR/docker/Dockerfile.pypline-poc .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:poc | grep -e "The push refers to" -e latest
    only:
