@@ -16,7 +16,7 @@ stages:
 test_2.7:
   stage: test
   script:
-    - pytest $CI_PROJECT_DIR/tests
+    - pytest -v $CI_PROJECT_DIR/tests
     - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:latest -f $CI_PROJECT_DIR/docker/Dockerfile .
     - docker tag $CI_REGISTRY/christiantragesser/pypline-ci:latest $CI_REGISTRY/christiantragesser/pypline-ci:2.7
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -28,7 +28,7 @@ test_2.7:
 test_3:
   stage: test
   script:
-    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev3 sh -c 'pytest /tmp/tests'
+    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev3 sh -c 'pytest -v /tmp/tests'
     - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/docker/Dockerfile-3 .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:3 | grep -e "The push refers to" -e latest
@@ -56,6 +56,8 @@ release_poc:
 release_pypi:
    stage: release
    script:
+    - MAJOR="0"
+    - MINOR="1"
     - PATCH=$(pip search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
     - NEW=$((PATCH + 1))
     - sed -i -e "s/PATCH/$NEW/" setup.py
@@ -64,7 +66,7 @@ release_pypi:
     - cp README.md README.txt
     - cp $CI_PROJECT_DIR/pyplineCI.py $CI_PROJECT_DIR/pyplineCI/pyplineCI.py
     - python setup.py sdist
-    - pip install $CI_PROJECT_DIR/dist/pypline-ci-0.1.${NEW}.tar.gz
+    - pip install $CI_PROJECT_DIR/dist/pypline-ci-${MAJOR}.${MINOR}.${NEW}.tar.gz
     - python -c 'from pyplineCI import Pipeline'
     - twine upload dist/*
    only:
