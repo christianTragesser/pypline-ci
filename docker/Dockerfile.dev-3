@@ -4,4 +4,5 @@ COPY requirements.txt /tmp/requirements.txt
 
 RUN apk add py3-pip --no-cache && \
 pip3 install --upgrade pip --no-cache-dir && \
-pip3 install -r /tmp/requirements.txt --no-cache-dir
+pip3 install -r /tmp/requirements.txt --no-cache-dir && \
+pip install pytest-cov

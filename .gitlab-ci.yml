@@ -1,4 +1,4 @@
-image: registry.gitlab.com/christiantragesser/pypline-ci:dev
+image: registry.gitlab.com/christiantragesser/pypline-ci:dev3
 
 variables:
     DOCKER_DRIVER: overlay2
@@ -16,7 +16,7 @@ stages:
 test_2.7:
   stage: test
   script:
-    - pytest -v $CI_PROJECT_DIR/tests
+    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev sh -c 'pytest -v /tmp/tests'
     - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:latest -f $CI_PROJECT_DIR/docker/Dockerfile .
     - docker tag $CI_REGISTRY/christiantragesser/pypline-ci:latest $CI_REGISTRY/christiantragesser/pypline-ci:2.7
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -28,12 +28,17 @@ test_2.7:
 test_3:
   stage: test
   script:
-    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev3 sh -c 'pytest -v /tmp/tests'
+    - pytest -v $CI_PROJECT_DIR/tests
+    - pytest --cov pyplineCI $CI_PROJECT_DIR/tests --cov-report html --cov-report term
     - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/docker/Dockerfile-3 .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $CI_REGISTRY/christiantragesser/pypline-ci:3 | grep -e "The push refers to" -e latest
   only:
     - master
+  artifacts:
+    paths:
+    - "$CI_PROJECT_DIR/htmlcov"
+    expire_in: 1 week
   
 release_fakos:
    stage: release
