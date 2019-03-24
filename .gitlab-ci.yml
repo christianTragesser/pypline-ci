@@ -63,16 +63,16 @@ release_pypi:
    script:
     - MAJOR="0"
     - MINOR="1"
-    - PATCH=$(pip search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
+    - PATCH=$(pip3 search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
     - NEW=$((PATCH + 1))
     - sed -i -e "s/PATCH/$NEW/" setup.py
     - mkdir $CI_PROJECT_DIR/pyplineCI
     - echo "from .pyplineCI import *" > $CI_PROJECT_DIR/pyplineCI/__init__.py
     - cp README.md README.txt
     - cp $CI_PROJECT_DIR/pyplineCI.py $CI_PROJECT_DIR/pyplineCI/pyplineCI.py
-    - python setup.py sdist
-    - pip install $CI_PROJECT_DIR/dist/pypline-ci-${MAJOR}.${MINOR}.${NEW}.tar.gz
-    - python -c 'from pyplineCI import Pipeline'
+    - python3 setup.py sdist
+    - pip3 install $CI_PROJECT_DIR/dist/pypline-ci-${MAJOR}.${MINOR}.${NEW}.tar.gz
+    - python3 -c 'from pyplineCI import Pipeline'
     - twine upload dist/*
    only:
      - master

@@ -1,6 +1,6 @@
 FROM docker:latest
 
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements/requirements.txt /tmp/requirements.txt
 
 RUN apk add py3-pip --no-cache && \
 pip3 install --upgrade pip --no-cache-dir && \

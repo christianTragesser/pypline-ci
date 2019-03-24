@@ -1,6 +1,6 @@
 FROM docker:latest
 
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements/requirements.txt /tmp/requirements.txt
 
 RUN apk -U add python py-pip --no-cache && \
 pip install --upgrade pip --no-cache-dir && \
