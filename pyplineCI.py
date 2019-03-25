@@ -159,6 +159,7 @@ class Pipeline(object):
         self.scan_env_vars = {
             'IMG': self.scanImg,
         }
+        self.command = '/bin/sh -c "/opt/clair-scan.sh {0:s}"'.format(self.scanImg) 
         self.cleanMe = []
 
         print(bcolors.HEADER+'  * Scanning image {0:s} for known CVEs, please wait'.format(self.scanImg)+bcolors.ENDC)
@@ -171,6 +172,7 @@ class Pipeline(object):
         self.cleanMe.append(self.runD(image='arminc/clair-local-scan:latest', name='clair-backend'))
         self.pullImage(self.scanImg)
         self.runI(image='registry.gitlab.com/christiantragesser/clair-scan-util:latest',
-                        env_vars=self.scan_env_vars, name='clair-scanner', volumes=self.scanVolumes)
+                        command=self.command, env_vars=self.scan_env_vars,
+                        name='clair-scanner', volumes=self.scanVolumes)
         print('  - CVE scan cleanup')
         self.purgeContainers(self.cleanMe)
