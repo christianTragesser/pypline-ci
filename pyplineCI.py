@@ -156,18 +156,21 @@ class Pipeline(object):
         self.scanVolumes = {
             '/var/run/docker.sock': { 'bind': '/var/run/docker.sock', 'mode': 'rw'},
         }
+        self.scan_env_vars = {
+            'IMG': self.scanImg,
+        }
         self.cleanMe = []
 
         print(bcolors.HEADER+'  * Scanning image {0:s} for known CVEs, please wait'.format(self.scanImg)+bcolors.ENDC)
      
         self.cleanMe.append(self.runD(image='arminc/clair-db:latest', name='postgres'))
-        self.runD(image='docker:latest',
+        self.runD(image='registry.gitlab.com/christiantragesser/clair-scan-util:latest',
                           name='db-wait',
                           command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
                           detach=False)
         self.cleanMe.append(self.runD(image='arminc/clair-local-scan:latest', name='clair-backend'))
         self.pullImage(self.scanImg)
-        self.runI(image='registry.gitlab.com/christiantragesser/clair-scan-util:latest', command=self.scanImg,
-                                     name='clair-scanner', volumes=self.scanVolumes)
+        self.runI(image='registry.gitlab.com/christiantragesser/clair-scan-util:latest',
+                        env_vars=self.scan_env_vars, name='clair-scanner', volumes=self.scanVolumes)
         print('  - CVE scan cleanup')
         self.purgeContainers(self.cleanMe)
