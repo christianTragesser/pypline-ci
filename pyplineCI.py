@@ -166,6 +166,7 @@ class Pipeline(object):
                           command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
                           detach=False)
         self.cleanMe.append(self.runD(image='arminc/clair-local-scan:latest', name='clair-backend'))
+        self.pullImage(self.scanImg)
         self.runI(image='registry.gitlab.com/christiantragesser/clair-scan-util:latest', command=self.scanImg,
                                      name='clair-scanner', volumes=self.scanVolumes)
         print('  - CVE scan cleanup')
