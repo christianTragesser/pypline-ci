@@ -153,10 +153,8 @@ class Pipeline(object):
 
     def cveScan(self, scanImage):
         self.scanImg = scanImage
-        self.cwd = os.getcwd()
         self.scanVolumes = {
             '/var/run/docker.sock': { 'bind': '/var/run/docker.sock', 'mode': 'rw'},
-            self.cwd: { 'bind': '/tmp', 'mode': 'rw'}
         }
         self.cleanMe = []
 
