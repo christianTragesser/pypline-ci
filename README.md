@@ -18,8 +18,8 @@ buildPath = dirPath+'/docker/'
 localTag = 'local/foo:latest'
 
 pipeline = Pipeline()
-pipeline.buildImage(buildPath, localTag)
-pipeline.runD(localTag)
+pipeline.build_image(buildPath, localTag)
+pipeline.rund(localTag)
 ```
 
 * Implement testing framework from dedicated testing image
@@ -32,7 +32,7 @@ volumes = { dirPath: { 'bind': '/tmp', 'mode': 'rw' } }
 testDir = '/tmp/tests'
 
 pipeline = Pipeline(dockerRegistry='registry.gitlab.com/christiantragesser/')
-pipeline.runI(image=pipeline.dockerRegistry+'pyplineCI:latest',
+pipeline.runi(image=pipeline.dockerRegistry+'pyplineCI:latest',
               name='foo-test', working_dir=testDir,
               volumes=volumes, command='pytest')
 ```
@@ -60,35 +60,35 @@ app_env_vars = {
 }
 
 pl = Pipeline()
-cleanUp.append(pl.runD(image='mysql:5.7', name='mysql-test', environment=db_env_vars))
-cleanUp.append(pl.runD(image='local/foo_app', name='foo-app-test', environment=app_env_vars))
-pl.runI(image='tutum/curl:latest', name='foo-uat',
+cleanUp.append(pl.rund(image='mysql:5.7', name='mysql-test', environment=db_env_vars))
+cleanUp.append(pl.rund(image='local/foo_app', name='foo-app-test', environment=app_env_vars))
+pl.runi(image='tutum/curl:latest', name='foo-uat',
         working_dir=testDir, volumes=uat_volume,
         command='./uat.sh foo-app-test:5000')
-pl.purgeContainers(cleanUp)
+pl.purge_containers(cleanUp)
 ``` 
 * Perform CVE scan on a docker image
 ```python
 from pyplineCI import Pipeline
 
 pl = Pipeline()
-pl.cveScan('nginx:latest')
+pl.cve_scan('nginx:latest')
 ```
 #### API reference
 * **Pipeline**(_network='ci_net', dockerRegistry='library/'_)
 
   ```class pypline-ci.pyplineCI.Pipeline```
-  - **createNetwork(** _network_ **)** | Create docker pipeline network.  
+  - **create_network(** _network_ **)** | Create docker pipeline network.  
   parameters:
     + network(_str_) - Name of pipeline network, default `ci_net`
-  - **buildImage(** _path, tag_ **)** | Build docker image.  
+  - **build_image(** _path, tag_ **)** | Build docker image.  
   parameters:
     + path(_str_) - Path to the directory containing the Dockerfile.
     + tag(_str_) - Tag applied to newly built image.
-  - **pullImage(** _image_ **)** | Pull an image of the given name, similar to the `docker pull` command. If no tag is specified, all tags from that repository will be pulled.  
+  - **pull_image(** _image_ **)** | Pull an image of the given name, similar to the `docker pull` command. If no tag is specified, all tags from that repository will be pulled.  
   parameters:
     + image(_str_) - Image name to pull.
-  - **runD(** _image, stderr=None, ports=None, volumes=None, name=None, environment=None, network=_<obj network\>_, command=None, detach=True, remove=False_ **)** |
+  - **rund(** _image, stderr=None, ports=None, volumes=None, name=None, environment=None, network=_<obj network\>_, command=None, detach=True, remove=False_ **)** |
   Performs pull action on provided image, runs a daemonized container, then returns the container ID.  
   parameters:
     + environment(_dict or list_) - Environment variables to set inside the container.
@@ -96,7 +96,7 @@ pl.cveScan('nginx:latest')
     + name(_str_) - The name for this container.
     + ports(_dict_) - Port bindings to the container. The keys of the dictionary are the ports to bind inside the container, either as an integer or a string in the form port/protocol, where the protocol is either tcp or udp. The values of the dictionary are the corresponding ports to open on the host.
     + volumes(_dict_) - Configure volumes mounted inside the container.
-  - **runI(** _image, command, name=None, volumes=None, working_dir='/root', tty=True, environment=None, stdin_open=True, network=_<obj network\>_, auto_remove=False_ **)** | Performs pull action on provided image, runs an interactive container implementing provided command, then returns container stdout logs and command exit status(zero or non-zero).  
+  - **runi(** _image, command, name=None, volumes=None, working_dir='/root', tty=True, environment=None, stdin_open=True, network=_<obj network\>_, auto_remove=False_ **)** | Performs pull action on provided image, runs an interactive container implementing provided command, then returns container stdout logs and command exit status(zero or non-zero).  
   parameters:
     + command(_str_) - The command to run in the container.
     + environment(_dict or list_) - Environment variables to set inside the container.
@@ -105,10 +105,10 @@ pl.cveScan('nginx:latest')
     + ports(_dict_) - Port bindings to the container. The keys of the dictionary are the ports to bind inside the container, either as an integer or a string in the form port/protocol, where the protocol is either tcp or udp. The values of the dictionary are the corresponding ports to open on the host.
     + volumes(_dict_) - Configure volumes mounted inside the container.
     + working_dir(_str_) - Path to the working directory.
-  - **purgeContainers(** _ids_ **)** | Force deletion of container by container ID.  
+  - **purge_containers(** _ids_ **)** | Force deletion of container by container ID.  
   parameters:
     + ids(_list_) - List of container IDs to delete.
-  - **cveScan(** _scanImage_ **)** | Perform CVE scan of docker image using [CoreOS Clair](https://coreos.com/clair/docs/latest/).  
+  - **cve_scan(** _scanImage_ **)** | Perform CVE scan of docker image using [CoreOS Clair](https://coreos.com/clair/docs/latest/).  
   parameters:
     + scanImage(_str_) - The image to scan.
 

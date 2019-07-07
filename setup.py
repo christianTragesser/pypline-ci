@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
      name='pypline-ci',  
-     version='0.1.21',
+     version='0.1.PATCH',
      author="Christian Tragesser",
      author_email="christian@evoen.net",
      description="A docker pipeline library",

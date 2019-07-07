@@ -63,8 +63,8 @@ release_pypi:
    script:
     - MAJOR="0"
     - MINOR="1"
-    - PATCH=$(pip3 search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
-    - NEW=$((PATCH + 1))
+    - LATEST=$(pip3 search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
+    - NEW=$((LATEST + 1))
     - sed -i -e "s/PATCH/$NEW/" setup.py
     - mkdir $CI_PROJECT_DIR/pyplineCI
     - echo "from .pyplineCI import *" > $CI_PROJECT_DIR/pyplineCI/__init__.py
