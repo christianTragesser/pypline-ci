@@ -2,3 +2,4 @@ pytest==3.7.2
 mock==2.0.0
 docker==3.5.0
 twine==1.12.1
+pytest-cov==2.6.1
