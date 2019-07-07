@@ -95,7 +95,7 @@ createdContainer = {
     u'Id': u'f8ff8c989760534ac5d491682a3f1995d2b80c6df4d33b36268bc6492e570822'
 }
 
-pullImage = ''' 
+pull_image = ''' 
     {"status":"Pulling from test/dind","id":"latest"}
     {"status":"Digest: sha256:7043076348bf5040220df6ad703798fd8593a0918d06d3ce30c6c93be117e430"}
     {"status":"Status: Image is up to date for test/dind:latest"}

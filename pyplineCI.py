@@ -2,7 +2,8 @@ import docker
 import os
 import sys
 
-#this class is from stack overflow; greatful.
+
+# this class is from stack overflow; greatful.
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -15,20 +16,14 @@ class bcolors:
 
 
 class Pipeline(object):
-    def __init__(self, 
-                 network='ci_net',
-                 dockerRegistry='library/'
-                 ):
+    def __init__(self, network='ci_net', dockerRegistry='library/'):
         self.client = docker.from_env()
         self.network = network
         self.dockerRegistry = dockerRegistry
-        
-        self.createNetwork(self.network)
+        self.create_network(self.network)
 
-
-    def createNetwork(self, network):
+    def create_network(self, network):
         self.ciNet = network
-
         self.existingNets = self.client.networks.list()
         self.netNames = []
         for net in self.existingNets:
@@ -43,8 +38,7 @@ class Pipeline(object):
             except docker.errors.APIError as e:
                 print(e)
 
-
-    def buildImage(self, path, tag):
+    def build_image(self, path, tag):
         self.path = path
         self.tag = tag
         print(bcolors.BOLD+'  + Building image {0:s}, please wait'.format(self.tag)+bcolors.ENDC)
@@ -54,11 +48,9 @@ class Pipeline(object):
         except docker.errors.BuildError as e:
             print(bcolors.FAIL+'Error attempting to build image {0:s}:'.format(self.tag)+bcolors.ENDC)
             print(e)
-            
 
-    def pullImage(self, image):
+    def pull_image(self, image):
         self.image = image
-
         if image.startswith('local/'):
             print(bcolors.OKGREEN+'    . local image {0:s}'.format(self.image)+bcolors.ENDC)
         else:
@@ -70,21 +62,19 @@ class Pipeline(object):
                 print(bcolors.FAIL+'Error attempting to pull image {0:s}:'.format(self.image)+bcolors.ENDC)
                 print(e)
 
-
-    def runD(self, image, stderr=None, ports=None, volumes=None,
-                     name=None, env_vars=None, network=None,
-                     command=None, detach=None, remove=None):
-        if network == None:
+    def rund(self, image, stderr=None, ports=None, volumes=None,
+             name=None, env_vars=None, network=None, command=None,
+             detach=None, remove=None):
+        if network is None:
             network = self.network
-        if detach == None:
+        if detach is None:
             detach = True
-        if detach == False:
+        if detach is False:
             remove = True
-            stderr = True
 
         print(bcolors.BOLD+'  + Starting container {0:s}'.format(str(name))+bcolors.ENDC)
 
-        self.pullImage(image)
+        self.pull_image(image)
 
         try:
             self.instance = self.client.containers.run(image=image,
@@ -100,26 +90,23 @@ class Pipeline(object):
             print(err)
             return err
 
-        if detach == True:
+        if detach is True:
             print('     '+self.instance.id)
             return self.instance.id
 
-
-    def runI(self, image, command, name=None,
-                                volumes=None, working_dir=None,
-                                tty=True, env_vars=None, stdin_open=True,
-                                network=None, auto_remove=False):
+    def runi(self, image, command, name=None, volumes=None, working_dir=None,
+             tty=True, env_vars=None, stdin_open=True, network=None, auto_remove=False):
         self.name = str(name)
         self.command = command
         self.working_dir = working_dir
-        if network == None:
+        if network is None:
             network = self.network
-        if working_dir == None:
+        if working_dir is None:
             self.working_dir = '/root'
 
         print(bcolors.BOLD+'  + Starting container {0:s}'.format(image)+bcolors.ENDC)
 
-        self.pullImage(image)
+        self.pull_image(image)
 
         container = self.client.containers.create(image=image, command='sleep 600', environment=env_vars,
                                                   volumes=volumes, tty=tty, stdin_open=stdin_open,
@@ -131,45 +118,41 @@ class Pipeline(object):
         if sys.version_info[0] < 3:
             reload(sys)
             sys.setdefaultencoding('utf8')
-        print(bcolors.UNDERLINE+
-                  '\n  {0:s} attached output  \n'.format(self.name)+
-                  bcolors.ENDC+ 
-                  exec_log.output.decode()+
-                  '---{0:s} output detached---\n'.format(self.name))
+        print(bcolors.UNDERLINE +
+              '\n  {0:s} attached output  \n'.format(self.name) +
+              bcolors.ENDC +
+              exec_log.output.decode() +
+              '---{0:s} output detached---\n'.format(self.name))
         container.remove(force=True)
         if exec_log.exit_code != 0:
-            print(bcolors.FAIL+'  * Attached container returned non-zero value, exiting...'+bcolors.ENDC)
-            sys.tracebacklimit=0
-            raise Exception(bcolors.FAIL+'Pipeline error'+bcolors.ENDC)
+            print(bcolors.FAIL + '  * Attached container returned non-zero value, exiting...' + bcolors.ENDC)
+            sys.tracebacklimit = 0
+            raise Exception(bcolors.FAIL + 'Pipeline error' + bcolors.ENDC)
         return exec_log.exit_code
 
-
-    def purgeContainers(self, ids):
+    def purge_containers(self, ids):
         self.ids = ids
         for container in self.ids:
             self.client.api.remove_container(container, force=True)
         self.client.containers.prune()
 
-
-    def cveScan(self, scanImage):
+    def cve_scan(self, scanImage):
         self.scanImg = scanImage
         self.cwd = os.getcwd()
         self.scanVolumes = {
-            '/var/run/docker.sock': { 'bind': '/var/run/docker.sock', 'mode': 'rw'},
-            self.cwd: { 'bind': '/tmp', 'mode': 'rw'}
+            '/var/run/docker.sock': {'bind': '/var/run/docker.sock', 'mode': 'rw'},
+            self.cwd: {'bind': '/tmp', 'mode': 'rw'}
         }
-        self.command = '/bin/sh -c "/opt/clair-scan.sh {0:s}"'.format(self.scanImg) 
+        self.command = '/bin/sh -c "/opt/clair-scan.sh {0:s}"'.format(self.scanImg)
         self.cleanMe = []
 
         print(bcolors.HEADER+'  * Scanning image {0:s} for known CVEs, please wait'.format(self.scanImg)+bcolors.ENDC)
-     
-        self.cleanMe.append(self.runD(image='arminc/clair-db:latest', name='postgres'))
-        self.runD(image='christiantragesser/clair-scanner',
-                          name='db-wait',
-                          command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
-                          detach=False)
-        self.cleanMe.append(self.runD(image='arminc/clair-local-scan:v2.0.6', name='clair'))
-        self.runI(image='christiantragesser/clair-scanner', command=self.command,
-                                     name='clair-scanner', volumes=self.scanVolumes)
+
+        self.cleanMe.append(self.rund(image='arminc/clair-db:latest', name='postgres'))
+        self.rund(image='christiantragesser/clair-scanner', name='db-wait',
+                  command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
+                  detach=False)
+        self.cleanMe.append(self.rund(image='arminc/clair-local-scan:v2.0.6', name='clair'))
+        self.runi(image='christiantragesser/clair-scanner', command=self.command, name='clair-scanner', volumes=self.scanVolumes)
         print('  - CVE scan cleanup')
-        self.purgeContainers(self.cleanMe)
+        self.purge_containers(self.cleanMe)

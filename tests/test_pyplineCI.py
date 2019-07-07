@@ -16,9 +16,9 @@ def test_network_create(mock_list_networks, mock_create_network, mock_inspect_ne
     #takes in network name
     #checks for provided network,
     #return 'created' 
-    responseCreated = pipeline.createNetwork('test')
+    responseCreated = pipeline.create_network('test')
     #return 'exists'
-    responseExisting = pipeline.createNetwork('test1')
+    responseExisting = pipeline.create_network('test1')
 
     assert responseCreated == 'created'
     assert responseExisting == 'existing'
@@ -27,7 +27,7 @@ def test_network_create(mock_list_networks, mock_create_network, mock_inspect_ne
 def test_build_image(mock_build_image):
     #takes in path and image tag
     #runs docker SDK build
-    pipeline.buildImage('/tmp/', 'test/pyplineCI:latest')
+    pipeline.build_image('/tmp/', 'test/pyplineCI:latest')
 
     assert mock_build_image.called
 
@@ -35,21 +35,21 @@ def test_build_image(mock_build_image):
 def test_pull_image(mock_pull_image):
     #takes in image tag
     #runs docker SDK pull method 
-    pipeline.pullImage('test/pyplineCI:latest')
+    pipeline.pull_image('test/pyplineCI:latest')
 
     assert mock_pull_image.called
 
 @mock.patch('docker.APIClient.inspect_container', return_value=mockValues.inspectContainer)
 @mock.patch('docker.APIClient.start', return_value=mockValues.createdContainer)
 @mock.patch('docker.APIClient.create_container', return_value=mockValues.createdContainer)
-@mock.patch('docker.APIClient.pull', return_value=mockValues.pullImage)
+@mock.patch('docker.APIClient.pull', return_value=mockValues.pull_image)
 def test_run_container_detached(mock_pull_image, mock_create_container,
                                    mock_run_container, mock_inspect_container):
     #takes in image and tag
     #runs docker SDK pull method
     #creates container
     #returns container ID 
-    response = pipeline.runD('test/pyplineCI:latest')
+    response = pipeline.rund('test/pyplineCI:latest')
     
     assert mock_pull_image.called
     assert response == mockValues.createdContainer['Id']
@@ -64,7 +64,7 @@ def test_run_local_image(mock_pull_image, mock_create_container,
     #runs docker SDK pull method
     #creates container
     #returns container ID 
-    response = pipeline.runD('local/test:latest')
+    response = pipeline.rund('local/test:latest')
     
     assert not mock_pull_image.called
     assert response == mockValues.createdContainer['Id']
@@ -76,7 +76,7 @@ def test_run_local_image(mock_pull_image, mock_create_container,
 @mock.patch('docker.APIClient.exec_create', return_value=mockValues.execCreate)
 @mock.patch('docker.APIClient.start', return_value=mockValues.createdContainer)
 @mock.patch('docker.APIClient.create_container', return_value=mockValues.createdContainer)
-@mock.patch('docker.APIClient.pull', return_value=mockValues.pullImage)
+@mock.patch('docker.APIClient.pull', return_value=mockValues.pull_image)
 def test_run_container_interactive(mock_pull_image, mock_create_container,
                                    mock_run_container, mock_exec_create,
                                    mock_exec_start, mock_exec_inspect,
@@ -86,7 +86,7 @@ def test_run_container_interactive(mock_pull_image, mock_create_container,
     #creates starts container
     #executes command on container
     #returns output of interactive session
-    response = pipeline.runI('test/pyplineCI:latest', 'echo hello')
+    response = pipeline.runi('test/pyplineCI:latest', 'echo hello')
     
     assert mock_pull_image.called
     assert response == 0
@@ -98,7 +98,7 @@ def test_run_container_interactive(mock_pull_image, mock_create_container,
 @mock.patch('docker.APIClient.exec_create', return_value=mockValues.execCreate)
 @mock.patch('docker.APIClient.start', return_value=mockValues.createdContainer)
 @mock.patch('docker.APIClient.create_container', return_value=mockValues.createdContainer)
-@mock.patch('docker.APIClient.pull', return_value=mockValues.pullImage)
+@mock.patch('docker.APIClient.pull', return_value=mockValues.pull_image)
 def test_error_container_interactive(mock_pull_image, mock_create_container,
                                    mock_run_container, mock_exec_create,
                                    mock_exec_start, mock_error_inspect,
@@ -109,7 +109,7 @@ def test_error_container_interactive(mock_pull_image, mock_create_container,
     #executes command on container
     #returns error
     with pytest.raises(Exception) as excinfo:
-        pipeline.runI('test/pyplineCI:latest', 'echo hello')
+        pipeline.runi('test/pyplineCI:latest', 'echo hello')
     assert 'Pipeline error' in str(excinfo.value)
 
 @mock.patch('docker.APIClient.prune_containers')
@@ -122,6 +122,6 @@ def test_purge_containers(mock_inpect_container, mock_rm_container, mock_prune_c
     containerId = 'f8ff8c989760534ac5d491682a3f1995d2b80c6df4d33b36268bc6492e570822'
     removeMe = [ containerId ]
 
-    pipeline.purgeContainers(removeMe)
+    pipeline.purge_containers(removeMe)
     assert mock_rm_container.called
     assert mock_prune_containers.called
