@@ -1,13 +1,18 @@
-from distutils.core import setup
+import os
+from setuptools import setup
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
      name='pypline-ci',  
-     version='0.1.PATCH',
+     version='0.1.21',
      author="Christian Tragesser",
      author_email="christian@evoen.net",
      description="A docker pipeline library",
      long_description_content_type="text/markdown",
-     long_description=open('README.md').read(),
+     long_description=read('README.md'),
      license='MIT',
      url="https://github.com/christianTragesser/pypline-ci",
      packages=['pyplineCI',],
