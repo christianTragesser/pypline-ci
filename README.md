@@ -1,14 +1,15 @@
-# Python docker delivery pipeline library
+# pypline-ci
 [![pipeline status](https://gitlab.com/christianTragesser/pypline-ci/badges/master/pipeline.svg)](https://gitlab.com/christianTragesser/pypline-ci/commits/master)
 
-### Why?
-I'm currently experimenting with docker-in-docker delivery pipelines written in a *high-level language* hoping to capitalize on object-oriented concepts native to Python.  While bash does provide the simple ability to script docker-in-docker pipelines; at a certain scale, creating and maintaining independent scripts across multiple repositories or projects becomes cumbersome and inefficient.
+A docker orchestration tool for container-based delivery pipelines - providing developers, testers, and operators a common automated testing tool for local workstations and delivery pipeline infrastructure.
+
+I'm currently experimenting with docker-in-docker delivery pipelines written in a *high-level language* hoping to capitalize on object-oriented concepts native to Python.  While bash does provide a simple ability to script docker-in-docker pipelines; at a certain scale, creating and maintaining independent scripts across multiple integrated repositories or projects becomes cumbersome and inefficient.
 
 ##### Why Python 2.7 by default?
-For most Docker development workstations(popular Linux distros or MacOS) Python 2.7 is as natively available as bash. A major focus of this tooling is minimal dependencies however, this library should be compatible with Python 3 as well.
+Currently, Python 2.7 is native to most Docker development workstations(popular Linux distros or MacOS). A major focus of this tooling is minimal dependencies however, this library is compatible with Python 3 as well.
 
 #### Examples
-* Build image and run container
+Build image and run container:
 ```python
 import os
 from pyplineCI import Pipeline
@@ -17,27 +18,27 @@ dirPath = os.path.dirname(os.path.realpath(__file__))
 buildPath = dirPath+'/docker/'
 localTag = 'local/foo:latest'
 
-pipeline = Pipeline()
-pipeline.build_image(buildPath, localTag)
-pipeline.rund(localTag)
+pl = Pipeline()
+pl.build_image(buildPath, localTag)
+pl.rund(localTag)
 ```
 
-* Implement testing framework from dedicated testing image
+Implement testing framework from dedicated testing image:
 ```python
 import os
 from pyplineCI import Pipeline
 
 dirPath = os.path.dirname(os.path.realpath(__file__))
-volumes = { dirPath: { 'bind': '/tmp', 'mode': 'rw' } }
+volumes = {dirPath: {'bind': '/tmp', 'mode': 'rw'}}
 testDir = '/tmp/tests'
 
-pipeline = Pipeline(dockerRegistry='registry.gitlab.com/christiantragesser/')
-pipeline.runi(image=pipeline.dockerRegistry+'pyplineCI:latest',
+pl = Pipeline(dockerRegistry='registry.gitlab.com/christiantragesser/')
+pl.runi(image=pipeline.dockerRegistry+'my-test-image:latest',
               name='foo-test', working_dir=testDir,
               volumes=volumes, command='pytest')
 ```
 
-* Orchestrate application stack for UAT testing then remove all containers if tests are successful
+Orchestrate application stack for UAT testing then remove all containers if tests are successful:
 ```python
 import os
 from pyplineCI import Pipeline
@@ -45,19 +46,10 @@ from pyplineCI import Pipeline
 dirPath = os.path.dirname(os.path.realpath(__file__))
 cleanUp = []
 
-uat_volume = { dirPath: { 'bind': '/tmp', 'mode': 'rw' } }
+uat_volume = {dirPath: {'bind': '/tmp', 'mode': 'rw'}}
 testDir = '/tmp/tests'
-db_env_vars = {
-            'MYSQL_ROOT_PASSWORD': 'root',
-            'MYSQL_DATABASE': 'foo-db',
-            'MYSQL_ROOT_HOST': '%'
-}
-app_env_vars = {
-            'DB_HOST': 'mysql-test',
-            'DB_USER': 'root',
-            'DB_PASSWORD': 'root',
-            'DATABASE': 'foo-db'
-}
+db_env_vars = {'MYSQL_ROOT_PASSWORD': 'root', 'MYSQL_DATABASE': 'foo-db', 'MYSQL_ROOT_HOST': '%'}
+app_env_vars = {'DB_HOST': 'mysql-test', 'DB_USER': 'root', 'DB_PASSWORD': 'root', 'DATABASE': 'foo-db'}
 
 pl = Pipeline()
 cleanUp.append(pl.rund(image='mysql:5.7', name='mysql-test', environment=db_env_vars))
@@ -67,7 +59,7 @@ pl.runi(image='tutum/curl:latest', name='foo-uat',
         command='./uat.sh foo-app-test:5000')
 pl.purge_containers(cleanUp)
 ``` 
-* Perform CVE scan on a docker image
+Perform CVE scan on a docker image:
 ```python
 from pyplineCI import Pipeline
 
