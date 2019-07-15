@@ -139,8 +139,7 @@ class Pipeline(object):
     def cve_scan(self, scanImage):
         self.scanImg = scanImage
         self.scanVolumes = {
-            '/var/run/docker.sock': {'bind': '/var/run/docker.sock', 'mode': 'rw'},
-            self.cwd: {'bind': '/tmp', 'mode': 'rw'}
+            '/var/run/docker.sock': {'bind': '/var/run/docker.sock', 'mode': 'rw'}
         }
         self.command = '/bin/sh -c "/opt/clair-scan.sh {0:s}"'.format(self.scanImg)
         self.cleanMe = []
