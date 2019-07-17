@@ -62,8 +62,7 @@ class Pipeline(object):
                 print(bcolors.FAIL+'Error attempting to pull image {0:s}:'.format(self.image)+bcolors.ENDC)
                 print(e)
 
-    def rund(self, image, stderr=None, ports=None, volumes=None,
-             name=None, env_vars=None, network=None, command=None,
+    def rund(self, image, stderr=None, ports=None, volumes=None, name=None, env_vars=None, network=None, command=None,
              detach=None, remove=None):
         if network is None:
             network = self.network
@@ -77,15 +76,8 @@ class Pipeline(object):
         self.pull_image(image)
 
         try:
-            self.instance = self.client.containers.run(image=image,
-                                                       ports=ports,
-                                                       volumes=volumes,
-                                                       name=name,
-                                                       environment=env_vars,
-                                                       command=command,
-                                                       network=network,
-                                                       detach=detach,
-                                                       remove=remove)
+            self.instance = self.client.containers.run(image=image, ports=ports, volumes=volumes, name=name, environment=env_vars,
+                                                       command=command, network=network, detach=detach, remove=remove)
         except docker.errors.ContainerError as err:
             print(err)
             return err
@@ -108,9 +100,8 @@ class Pipeline(object):
 
         self.pull_image(image)
 
-        container = self.client.containers.create(image=image, command='sleep 600', environment=env_vars,
-                                                  volumes=volumes, tty=tty, stdin_open=stdin_open,
-                                                  network=network, auto_remove=auto_remove)
+        container = self.client.containers.create(image=image, command='sleep 600', environment=env_vars, volumes=volumes,
+                                                  tty=tty, stdin_open=stdin_open, network=network, auto_remove=auto_remove)
         container.start()
         print('    '+container.id)
         exec_log = container.exec_run(self.command, workdir=self.working_dir, stdout=True, stderr=True, stream=False)
@@ -146,11 +137,15 @@ class Pipeline(object):
 
         print(bcolors.HEADER+'  * Scanning image {0:s} for known CVEs, please wait'.format(self.scanImg)+bcolors.ENDC)
 
+        self.pull_image(scanImage)
         self.cleanMe.append(self.rund(image='arminc/clair-db:latest', name='postgres'))
         self.rund(image='christiantragesser/clair-scanner', name='db-wait',
                   command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
                   detach=False)
         self.cleanMe.append(self.rund(image='arminc/clair-local-scan:v2.0.6', name='clair'))
-        self.runi(image='christiantragesser/clair-scanner', command=self.command, name='clair-scanner', volumes=self.scanVolumes)
-        print('  - CVE scan cleanup')
-        self.purge_containers(self.cleanMe)
+        try:
+            self.runi(image='christiantragesser/clair-scanner', command=self.command, name='clair-scanner', volumes=self.scanVolumes)
+            print('  - CVE scan cleanup')
+            self.purge_containers(self.cleanMe)
+        except Exception:
+            self.purge_containers(self.cleanMe)
