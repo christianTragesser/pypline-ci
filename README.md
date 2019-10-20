@@ -60,11 +60,9 @@ pl.runi(image='tutum/curl:latest', name='foo-uat',
 pl.purge_containers(cleanUp)
 ``` 
 Perform CVE scan on a docker image:
-```python
-from pyplineCI import Pipeline
-
-pl = Pipeline()
-pl.cve_scan('nginx:latest')
+```bash
+MY_IMAGE="alpine:latest"
+python3 -c "from pyplineCI import Pipeline; Pipeline().cve_scan(${MY_IMAGE})"
 ```
 #### API reference
 * **Pipeline**(_network='ci_net', dockerRegistry='library/'_)
