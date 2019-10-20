@@ -142,7 +142,7 @@ class Pipeline(object):
         self.rund(image='christiantragesser/clair-scanner', name='db-wait',
                   command='/bin/sh -c "while ! timeout -t 1 sh -c \'nc -zv postgres 5432\' &>/dev/null; do :; done"',
                   detach=False)
-        self.cleanMe.append(self.rund(image='arminc/clair-local-scan:v2.0.6', name='clair'))
+        self.cleanMe.append(self.rund(image='arminc/clair-local-scan:latest', name='clair'))
         try:
             self.runi(image='christiantragesser/clair-scanner', command=self.command, name='clair-scanner', volumes=self.scanVolumes)
             print('  - CVE scan cleanup')
