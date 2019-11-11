@@ -3,11 +3,11 @@ image: registry.gitlab.com/christiantragesser/pypline-ci:dev3
 variables:
     DOCKER_DRIVER: overlay2
     DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
     PACKAGE: pypline-ci
     
 services:
 - name: docker:stable-dind
-  command: ["--registry-mirror=https://dockerhub-mirror0.artifactory.asynchrony.com"] 
 
 stages:
   - test

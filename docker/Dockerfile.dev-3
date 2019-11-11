@@ -5,7 +5,7 @@ COPY requirements/requirements-dev.txt /tmp/requirements-dev.txt
 COPY pyplineCI.py /
 
 RUN PPATH=$(LOC=$(python3 -c "import easy_install as _; print(_.__file__)"); dirname $LOC) && \
-    mv /pyplineCI.py $PPATH
+    mv /pyplineCI.py $PPATH/
 
 RUN apk add py3-pip --no-cache && \
 pip3 install --upgrade pip --no-cache-dir && \
