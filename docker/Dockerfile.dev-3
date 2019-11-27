@@ -4,7 +4,7 @@ COPY requirements/requirements.txt /tmp/requirements.txt
 COPY requirements/requirements-dev.txt /tmp/requirements-dev.txt
 COPY pyplineCI.py /
 
-RUN apk add py3-pip --no-cache && \
+RUN apk add py3-pip git --no-cache && \
 pip3 install --upgrade pip --no-cache-dir && \
 pip3 install -r /tmp/requirements.txt --no-cache-dir && \
 pip3 install -r /tmp/requirements-dev.txt --no-cache-dir
