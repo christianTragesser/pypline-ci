@@ -1,6 +1,6 @@
 FROM registry.gitlab.com/christiantragesser/pypline-ci:dev3
 
-RUN pip3 install kubernetes==6.0.0 \
+RUN pip3 install kubernetes \
 requests \
 responses \
 prometheus-client \
