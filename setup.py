@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
      name='pypline-ci',  
-     version='0.1.PATCH',
+     version='0.2.PATCH',
      author="Christian Tragesser",
      author_email="christian@evoen.net",
      description="A docker pipeline library",
@@ -20,7 +20,6 @@ setup(
         "docker >= 3.5.0",
     ],
      classifiers=[
-         "Programming Language :: Python :: 2.7",
          "Programming Language :: Python :: 3",
          "License :: OSI Approved :: MIT License",
          "Operating System :: OS Independent",

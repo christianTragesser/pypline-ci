@@ -1,4 +1,4 @@
-image: registry.gitlab.com/christiantragesser/pypline-ci:dev3
+image: registry.gitlab.com/christiantragesser/pypline-ci:dev
 
 variables:
     DOCKER_DRIVER: overlay2
@@ -13,28 +13,15 @@ stages:
   - test
   - release
 
-test_2.7:
-  stage: test
-  script:
-    - docker run --rm -i -v $CI_PROJECT_DIR:/tmp -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:dev sh -c 'pytest -v /tmp/tests'
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:latest -f $CI_PROJECT_DIR/docker/Dockerfile .
-    - docker run --rm -i -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:latest python -c "from pyplineCI import Pipeline; Pipeline().cve_scan('alpine:latest')"
-    - docker tag $CI_REGISTRY/christiantragesser/pypline-ci:latest $CI_REGISTRY/christiantragesser/pypline-ci:2.7
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker push $CI_REGISTRY/christiantragesser/pypline-ci:latest | grep -e "The push refers to" -e latest
-    - docker push $CI_REGISTRY/christiantragesser/pypline-ci:2.7 | grep -e "The push refers to" -e latest
-  only:
-    - master
-
-test_3:
+test:
   stage: test
   script:
     - pytest -v $CI_PROJECT_DIR/tests
     - pytest --cov pyplineCI $CI_PROJECT_DIR/tests --cov-report html --cov-report term
-    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci:3 -f $CI_PROJECT_DIR/docker/Dockerfile-3 .
-    - docker run --rm -i -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci:3 python3 -c "from pyplineCI import Pipeline; Pipeline().cve_scan('alpine:latest')"
+    - docker build -t $CI_REGISTRY/christiantragesser/pypline-ci -f $CI_PROJECT_DIR/docker/Dockerfile .
+    - docker run --rm -i -v /var/run/docker.sock:/var/run/docker.sock $CI_REGISTRY/christiantragesser/pypline-ci python3 -c "from pyplineCI import Pipeline; Pipeline().cve_scan('alpine:latest')"
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker push $CI_REGISTRY/christiantragesser/pypline-ci:3 | grep -e "The push refers to" -e latest
+    - docker push $CI_REGISTRY/christiantragesser/pypline-ci | grep -e "The push refers to" -e latest
   only:
     - master
   artifacts:
@@ -64,7 +51,7 @@ release_pypi:
    stage: release
    script:
     - MAJOR="0"
-    - MINOR="1"
+    - MINOR="2"
     - LATEST=$(pip3 search $PACKAGE | grep $PACKAGE | awk '{print $2}' | tr -d \( | tr -d \) | awk -F '.' '{print $3}')
     - NEW=$((LATEST + 1))
     - sed -i -e "s/PATCH/$NEW/" setup.py

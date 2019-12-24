@@ -2,8 +2,12 @@ FROM docker:latest
 
 COPY requirements/requirements.txt /tmp/requirements.txt
 COPY requirements/requirements-dev.txt /tmp/requirements-dev.txt
+COPY pyplineCI.py /
 
-RUN apk -U add python py-pip --no-cache && \
-pip install --upgrade pip --no-cache-dir && \
-pip install -r /tmp/requirements.txt --no-cache-dir && \
-pip install -r /tmp/requirements-dev.txt --no-cache-dir
+RUN apk add py3-pip git --no-cache && \
+pip3 install --upgrade pip --no-cache-dir && \
+pip3 install -r /tmp/requirements.txt --no-cache-dir && \
+pip3 install -r /tmp/requirements-dev.txt --no-cache-dir
+
+RUN PPATH=$(LOC=$(python3 -c "import easy_install as _; print(_.__file__)"); dirname $LOC) && \
+    mv /pyplineCI.py $PPATH/

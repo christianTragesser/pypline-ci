@@ -5,9 +5,6 @@ A docker orchestration tool for container-based delivery pipelines - providing d
 
 I'm currently experimenting with docker-in-docker delivery pipelines written in a *high-level language* hoping to capitalize on object-oriented concepts native to Python.  While bash does provide a simple ability to script docker-in-docker pipelines; at a certain scale, creating and maintaining independent scripts across multiple integrated repositories or projects becomes cumbersome and inefficient.
 
-##### Why Python 2.7 by default?
-Currently, Python 2.7 is native to most Docker development workstations(popular Linux distros or MacOS). A major focus of this tooling is minimal dependencies however, this library is compatible with Python 3 as well.
-
 #### Examples
 Build image and run container:
 ```python
@@ -103,6 +100,8 @@ python3 -c "from pyplineCI import Pipeline; Pipeline().cve_scan(${MY_IMAGE})"
     + scanImage(_str_) - The image to scan.
 
 #### Install
+Python 3.6 or later
+
 Install on docker host:
 * From [PyPi](https://pypi.org/project/pypline-ci/)
 ```sh
@@ -118,15 +117,5 @@ $ docker run --rm -it \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $PWD:/tmp \
     -w /tmp \
-    registry.gitlab.com/christiantragesser/pypline-ci:latest /bin/sh
-```
-
-* For Python 3:
-
-```sh
-$ docker run --rm -it \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v $PWD:/tmp \
-    -w /tmp \
-    registry.gitlab.com/christiantragesser/pypline-ci:3 /bin/sh
+    registry.gitlab.com/christiantragesser/pypline-ci /bin/sh
 ```
